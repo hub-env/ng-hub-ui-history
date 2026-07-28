@@ -107,4 +107,69 @@ describe('HistoryStore', () => {
 
         stop();
     });
+
+    it('should keep independent undo/redo timelines per tracked object', () => {
+        const store = createHistoryStore<DemoState, string>();
+        store.registerObject('user-a', { name: 'Ana', meta: { age: 30, tags: [] } });
+        store.registerObject('user-b', { name: 'Ben', meta: { age: 40, tags: [] } });
+
+        store.commit('user-a', { name: 'Ana 1', meta: { age: 31, tags: [] } });
+        store.commit('user-b', { name: 'Ben 1', meta: { age: 41, tags: ['x'] } });
+        store.commit('user-b', { name: 'Ben 2', meta: { age: 42, tags: ['x', 'y'] } });
+
+        store.undo('user-a');
+
+        expect(store.getState('user-a')?.name).toBe('Ana');
+        expect(store.getState('user-b')?.name).toBe('Ben 2');
+        expect(store.canRedo('user-a')).toBe(true);
+        expect(store.canRedo('user-b')).toBe(false);
+        expect(store.history('user-a').length).toBe(1);
+        expect(store.history('user-b').length).toBe(2);
+
+        store.undo('user-b');
+        store.redo('user-a');
+
+        expect(store.getState('user-a')?.name).toBe('Ana 1');
+        expect(store.getState('user-b')?.name).toBe('Ben 1');
+
+        const snapshot = store.states();
+        expect(snapshot.get('user-a')?.name).toBe('Ana 1');
+        expect(snapshot.get('user-b')?.name).toBe('Ben 1');
+    });
+
+    it('should not record an entry for a transaction without net changes', () => {
+        const store = createHistoryStore<DemoState, string>();
+        store.registerObject('user-6', { name: 'Fay', meta: { age: 50, tags: ['ops'] } });
+
+        store.beginTransaction('user-6', 'No-op batch');
+        store.commit('user-6', { name: 'Fay Temp', meta: { age: 51, tags: ['ops'] } });
+        store.commit('user-6', { name: 'Fay', meta: { age: 50, tags: ['ops'] } });
+
+        expect(store.endTransaction('user-6')).toBe(false);
+        expect(store.history('user-6').length).toBe(0);
+        expect(store.canUndo('user-6')).toBe(false);
+        expect(store.commit('user-6', { name: 'Fay', meta: { age: 50, tags: ['ops'] } })).toBe(false);
+    });
+
+    it('should invalidate the redo branch when a transaction commits after undo', () => {
+        const store = createHistoryStore<DemoState, string>();
+        store.registerObject('user-7', { name: 'Gus', meta: { age: 60, tags: [] } });
+
+        store.commit('user-7', { name: 'Gus 1', meta: { age: 61, tags: [] } });
+        store.commit('user-7', { name: 'Gus 2', meta: { age: 62, tags: [] } });
+        store.undo('user-7');
+
+        expect(store.canRedo('user-7')).toBe(true);
+
+        store.beginTransaction('user-7', 'Replace branch');
+        store.commit('user-7', { name: 'Gus 3', meta: { age: 63, tags: ['tx'] } });
+        expect(store.endTransaction('user-7')).toBe(true);
+
+        expect(store.canRedo('user-7')).toBe(false);
+        expect(store.history('user-7').length).toBe(2);
+        expect(store.getState('user-7')?.name).toBe('Gus 3');
+
+        store.undo('user-7');
+        expect(store.getState('user-7')?.name).toBe('Gus 1');
+    });
 });
