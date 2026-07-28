@@ -1,6 +1,6 @@
 {
   "name": "ng-hub-ui-history",
-  "version": "22.0.0",
+  "version": "22.0.1",
   "description": "Signal-based multi-object undo/redo history store for Angular applications",
   "keywords": [
     "ng-hub-ui",
