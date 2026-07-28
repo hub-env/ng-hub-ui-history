@@ -11,6 +11,10 @@
     "angular"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carlos-morcillo/ng-hub-ui-history.git"
+  },
   "publishConfig": {
     "access": "public"
   },
