@@ -6,11 +6,11 @@ Signal-based history store for Angular with multi-object support, undo/redo, tra
 
 ## Documentation and Live Examples
 
-This package is part of [Hub UI](https://hubui.dev/), a collection of Angular component libraries for standalone apps.
+This package is part of [Hub UI](https://hubui.dev/en/), a collection of Angular component libraries for standalone apps.
 
-- Docs: https://hubui.dev/history/overview/
-- Live examples: https://hubui.dev/history/examples/
-- Hub UI: https://hubui.dev/
+- Docs: https://hubui.dev/en/history/overview/
+- Live examples: https://hubui.dev/en/history/examples/
+- Hub UI: https://hubui.dev/en/
 
 ## 🧩 Library Family `ng-hub-ui`
 
@@ -247,8 +247,8 @@ When reporting bugs, please include:
 Do you like this library? You can support us by buying us a coffee ☕:
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/carlosmorcillo)
 
-- Hub UI docs: https://hubui.dev/history/overview/
-- Live examples: https://hubui.dev/history/examples/
+- Hub UI docs: https://hubui.dev/en/history/overview/
+- Live examples: https://hubui.dev/en/history/examples/
 
 ## License
 

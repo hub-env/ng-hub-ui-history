@@ -6,11 +6,11 @@ Store de historial basado en Signals para Angular, con soporte multi-objeto, und
 
 ## Documentación y ejemplos en vivo
 
-Este paquete forma parte de [Hub UI](https://hubui.dev/), una colección de bibliotecas de componentes Angular para aplicaciones standalone.
+Este paquete forma parte de [Hub UI](https://hubui.dev/en/), una colección de bibliotecas de componentes Angular para aplicaciones standalone.
 
-- Documentación: https://hubui.dev/history/overview/
-- Ejemplos en vivo: https://hubui.dev/history/examples/
-- Hub UI: https://hubui.dev/
+- Documentación: https://hubui.dev/en/history/overview/
+- Ejemplos en vivo: https://hubui.dev/en/history/examples/
+- Hub UI: https://hubui.dev/en/
 
 ## 🧩 Familia de bibliotecas `ng-hub-ui`
 
@@ -249,8 +249,8 @@ Al reportar errores, incluye por favor:
 ¿Te gusta esta biblioteca? Puedes apoyarnos invitándonos a un café ☕:
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/carlosmorcillo)
 
-- Documentación Hub UI: https://hubui.dev/history/overview/
-- Ejemplos en vivo: https://hubui.dev/history/examples/
+- Documentación Hub UI: https://hubui.dev/en/history/overview/
+- Ejemplos en vivo: https://hubui.dev/en/history/examples/
 
 ## Licencia
 
