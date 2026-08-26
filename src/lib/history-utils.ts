@@ -186,7 +186,10 @@ function ensureParentContainer(
 		}
 
 		const stringKey = String(key);
-		if ((current as Record<string, unknown>)[stringKey] === undefined || (current as Record<string, unknown>)[stringKey] === null) {
+		if (
+			(current as Record<string, unknown>)[stringKey] === undefined ||
+			(current as Record<string, unknown>)[stringKey] === null
+		) {
 			(current as Record<string, unknown>)[stringKey] = isArrayKey ? [] : {};
 		}
 		current = (current as Record<string, unknown>)[stringKey] as Record<string, unknown> | unknown[];

@@ -1,34 +1,34 @@
 {
-  "name": "ng-hub-ui-history",
-  "version": "22.0.2",
-  "description": "Signal-based multi-object undo/redo history store for Angular applications",
-  "keywords": [
-    "ng-hub-ui",
-    "history",
-    "undo",
-    "redo",
-    "signals",
-    "angular"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/carlos-morcillo/ng-hub-ui-history.git"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "peerDependencies": {
-    "@angular/common": ">=18.0.0",
-    "@angular/core": ">=18.0.0",
-    "@angular/forms": ">=18.0.0",
-    "rxjs": ">=7.5.0"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
-  },
-  "sideEffects": false,
-  "main": "src/public-api.ts",
-  "homepage": "https://hubui.dev/",
-  "author": "Carlos Morcillo <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)"
+	"name": "ng-hub-ui-history",
+	"version": "22.0.2",
+	"description": "Signal-based multi-object undo/redo history store for Angular applications",
+	"keywords": [
+		"ng-hub-ui",
+		"history",
+		"undo",
+		"redo",
+		"signals",
+		"angular"
+	],
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/carlos-morcillo/ng-hub-ui-history.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"peerDependencies": {
+		"@angular/common": ">=18.0.0",
+		"@angular/core": ">=18.0.0",
+		"@angular/forms": ">=18.0.0",
+		"rxjs": ">=7.5.0"
+	},
+	"dependencies": {
+		"tslib": "^2.3.0"
+	},
+	"sideEffects": false,
+	"main": "src/public-api.ts",
+	"homepage": "https://hubui.dev/",
+	"author": "Carlos Morcillo <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)"
 }

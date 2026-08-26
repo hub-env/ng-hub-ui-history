@@ -202,8 +202,19 @@ describe('diff/patch round-trips', () => {
 
 	it('round-trips inserts and removals in arrays of objects', () => {
 		expectRoundTrip(
-			{ rows: [{ id: 1, label: 'one' }, { id: 2, label: 'two' }] },
-			{ rows: [{ id: 0, label: 'zero' }, { id: 1, label: 'one' }, { id: 2, label: 'two' }] }
+			{
+				rows: [
+					{ id: 1, label: 'one' },
+					{ id: 2, label: 'two' }
+				]
+			},
+			{
+				rows: [
+					{ id: 0, label: 'zero' },
+					{ id: 1, label: 'one' },
+					{ id: 2, label: 'two' }
+				]
+			}
 		);
 		expectRoundTrip({ rows: [{ id: 1 }, { id: 2 }, { id: 3 }] }, { rows: [{ id: 2 }] });
 	});

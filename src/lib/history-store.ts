@@ -31,9 +31,7 @@ interface TrackedObjectState<T> {
 /**
  * Creates a signal-based history store for multiple tracked objects.
  */
-export function createHistoryStore<T, K = string | number>(
-	config: HistoryStoreConfig<T, K> = {}
-): HistoryStore<T, K> {
+export function createHistoryStore<T, K = string | number>(config: HistoryStoreConfig<T, K> = {}): HistoryStore<T, K> {
 	const tracked = signal<Map<K, TrackedObjectState<T>>>(new Map());
 	const states = computed<Map<K, T>>(() => {
 		const map = new Map<K, T>();
