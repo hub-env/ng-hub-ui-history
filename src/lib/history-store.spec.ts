@@ -173,3 +173,76 @@ describe('HistoryStore', () => {
 		expect(store.getState('user-7')?.name).toBe('Gus 1');
 	});
 });
+
+interface ScheduledTask {
+	title: string;
+	dueAt: Date;
+	tags: Set<string>;
+}
+
+describe('HistoryStore with non-plain state values', () => {
+	it('should record, expose and undo a commit that only moves a Date', () => {
+		const store = createHistoryStore<ScheduledTask, string>();
+		store.registerObject('task-1', {
+			title: 'Review',
+			dueAt: new Date('2026-01-01T00:00:00.000Z'),
+			tags: new Set(['ops'])
+		});
+
+		const committed = store.commit('task-1', {
+			title: 'Review',
+			dueAt: new Date('2026-12-31T00:00:00.000Z'),
+			tags: new Set(['ops'])
+		});
+
+		expect(committed).toBe(true);
+		expect(store.getState('task-1')?.dueAt.toISOString()).toBe('2026-12-31T00:00:00.000Z');
+		expect(store.states().get('task-1')?.dueAt.toISOString()).toBe('2026-12-31T00:00:00.000Z');
+
+		expect(store.undo('task-1')).toBe(true);
+		expect(store.getState('task-1')?.dueAt).toBeInstanceOf(Date);
+		expect(store.getState('task-1')?.dueAt.toISOString()).toBe('2026-01-01T00:00:00.000Z');
+
+		store.redo('task-1');
+		expect(store.getState('task-1')?.dueAt.toISOString()).toBe('2026-12-31T00:00:00.000Z');
+	});
+
+	it('should undo the Date alongside the rest of a mixed commit', () => {
+		const store = createHistoryStore<ScheduledTask, string>();
+		store.registerObject('task-2', {
+			title: 'Review',
+			dueAt: new Date('2026-01-01T00:00:00.000Z'),
+			tags: new Set(['ops'])
+		});
+
+		store.commit('task-2', {
+			title: 'Review budget',
+			dueAt: new Date('2026-06-01T00:00:00.000Z'),
+			tags: new Set(['ops', 'finance'])
+		});
+		store.undo('task-2');
+
+		expect(store.getState('task-2')?.title).toBe('Review');
+		expect(store.getState('task-2')?.dueAt.toISOString()).toBe('2026-01-01T00:00:00.000Z');
+		expect(store.getState('task-2')?.tags).toEqual(new Set(['ops']));
+	});
+
+	it('should not record an entry when a new Date instance holds the same instant', () => {
+		const store = createHistoryStore<ScheduledTask, string>();
+		store.registerObject('task-3', {
+			title: 'Review',
+			dueAt: new Date('2026-01-01T00:00:00.000Z'),
+			tags: new Set(['ops'])
+		});
+
+		const committed = store.commit('task-3', {
+			title: 'Review',
+			dueAt: new Date('2026-01-01T00:00:00.000Z'),
+			tags: new Set(['ops'])
+		});
+
+		expect(committed).toBe(false);
+		expect(store.history('task-3').length).toBe(0);
+		expect(store.canUndo('task-3')).toBe(false);
+	});
+});

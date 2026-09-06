@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.0.4] - 2026-09-06
+
+### Added
+
+- **`FUNCTIONALITIES.md` ships with the library**, the same coverage table nine of the sibling
+  packages already provide: which parts of the factory, the store and the diffing semantics a
+  live example actually demonstrates, and which are only described in prose. Nothing said it
+  before, so a reader had to open every example on the documentation site to find out that
+  `keySelector`, `clearHistory` and the custom `diff`/`patch` strategies are documented but
+  never shown.
+
+### Fixed
+
+- **The published manifest no longer declares a `main`.** It pointed at `src/public-api.ts`, the
+  ng-packagr entry file, which never travels inside the tarball: any resolver that ignores the
+  `exports` map — older bundlers, legacy Jest resolution, plain `require` — followed it straight to
+  a file that is not there. Dropping the field leaves `exports`, `module` and `typings` as the only
+  entry points, which is the shape ng-packagr emits for every other library in the monorepo.
+- **A commit that only moves a `Date` (or a `Set`, `Map` or `RegExp`) is recorded again.** The
+  default diff walked every object key by key, and those types keep their payload outside their own
+  enumerable keys: `Object.keys(new Date())` is empty on both sides, so the comparison found nothing
+  and produced an empty patch. The store reads an empty patch as "no change", so `commit()` returned
+  `false`, the tracked state kept the old value that `getState()`/`states()` then handed back, and on
+  a mixed commit `undo()` restored the other fields while leaving the new date in place — all without
+  an error. Those values are now compared and replaced as a whole, which is what `structuredClone`
+  already round-trips; an instance rebuilt with the same content still records no entry.
+
+- **The English README no longer calls the package framework-agnostic.** The store is built on
+  `signal`/`computed` from `@angular/core` and `watchForm` takes an `@angular/forms`
+  `FormGroup`; both are declared peers, so the claim sent readers looking for a portable store
+  they were never going to get. The Spanish README never made the claim, so the two also
+  disagreed with each other; both now state the Angular requirement outright.
+- **Both READMEs give the full rule for what `commit` returns.** They said it answers `false`
+  when nothing changed and stopped there, while inside an open transaction it returns `true`
+  unconditionally and records no entry — the one case where the return value cannot be read as
+  "an entry was written".
+- **The library-family list in both READMEs matches the packages that exist.** It still named
+  `ng-hub-ui-accordion` and `ng-hub-ui-dropdown` and omitted badges, buttons, icons, loading,
+  metrics, signature and toast.
+
 ## [22.0.3] - 2026-09-01
 
 ### Changed

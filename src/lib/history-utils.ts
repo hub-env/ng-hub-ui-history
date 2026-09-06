@@ -95,6 +95,13 @@ function diffRecursive(
 		return;
 	}
 
+	if (!isPlainObject(previous) || !isPlainObject(next)) {
+		if (!areOpaqueValuesEqual(previous, next)) {
+			operations.push({ op: 'set', path, value: cloneDeep(next) });
+		}
+		return;
+	}
+
 	diffObjects(previous as Record<string, unknown>, next as Record<string, unknown>, path, operations);
 }
 
@@ -159,6 +166,55 @@ function diffObjects(
  */
 function isObjectLike(value: unknown): value is Record<string, unknown> | unknown[] {
 	return value !== null && typeof value === 'object';
+}
+
+/**
+ * Checks whether a value can be diffed key by key.
+ *
+ * Anything else — Date, Map, Set, RegExp, typed arrays, class instances — keeps its payload
+ * outside its own enumerable keys, so walking it reports no difference at all and the change
+ * is silently dropped. Those are compared and replaced as a whole value instead.
+ */
+function isPlainObject(value: object): boolean {
+	const prototype = Object.getPrototypeOf(value);
+	return prototype === Object.prototype || prototype === null;
+}
+
+/**
+ * Compares two values the diff handles as opaque, so an instance rebuilt with the same content
+ * (a fresh Date for the same instant, a Set re-created from the same members) is not recorded as
+ * a change and does not leave a history entry that undoes nothing.
+ *
+ * Unknown shapes fall back to `false`: reporting a change that did not happen only costs an
+ * entry, while missing one loses the consumer's data.
+ */
+function areOpaqueValuesEqual(previous: object, next: object): boolean {
+	if (Object.getPrototypeOf(previous) !== Object.getPrototypeOf(next)) {
+		return false;
+	}
+
+	if (previous instanceof Date) {
+		return Object.is(previous.getTime(), (next as Date).getTime());
+	}
+
+	if (previous instanceof RegExp) {
+		return previous.source === (next as RegExp).source && previous.flags === (next as RegExp).flags;
+	}
+
+	if (previous instanceof Set) {
+		const nextSet = next as Set<unknown>;
+		return previous.size === nextSet.size && [...previous].every((item) => nextSet.has(item));
+	}
+
+	if (previous instanceof Map) {
+		const nextMap = next as Map<unknown, unknown>;
+		return (
+			previous.size === nextMap.size &&
+			[...previous].every(([key, value]) => nextMap.has(key) && Object.is(nextMap.get(key), value))
+		);
+	}
+
+	return false;
 }
 
 /**

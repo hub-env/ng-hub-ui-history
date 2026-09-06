@@ -16,25 +16,30 @@ Este paquete forma parte de [Hub UI](https://hubui.dev/en/), una colección de b
 
 Esta biblioteca forma parte del ecosistema **ng-hub-ui**:
 
-- [**ng-hub-ui-accordion**](https://www.npmjs.com/package/ng-hub-ui-accordion) (obsoleta — usa ng-hub-ui-panels)
 - [**ng-hub-ui-action-sheet**](https://www.npmjs.com/package/ng-hub-ui-action-sheet)
 - [**ng-hub-ui-avatar**](https://www.npmjs.com/package/ng-hub-ui-avatar)
+- [**ng-hub-ui-badges**](https://www.npmjs.com/package/ng-hub-ui-badges)
 - [**ng-hub-ui-board**](https://www.npmjs.com/package/ng-hub-ui-board)
 - [**ng-hub-ui-breadcrumbs**](https://www.npmjs.com/package/ng-hub-ui-breadcrumbs)
+- [**ng-hub-ui-buttons**](https://www.npmjs.com/package/ng-hub-ui-buttons)
 - [**ng-hub-ui-calendar**](https://www.npmjs.com/package/ng-hub-ui-calendar)
-- [**ng-hub-ui-dropdown**](https://www.npmjs.com/package/ng-hub-ui-dropdown)
 - [**ng-hub-ui-ds**](https://www.npmjs.com/package/ng-hub-ui-ds)
 - [**ng-hub-ui-forms**](https://www.npmjs.com/package/ng-hub-ui-forms)
 - [**ng-hub-ui-history**](https://www.npmjs.com/package/ng-hub-ui-history) ← Estás aquí
+- [**ng-hub-ui-icons**](https://www.npmjs.com/package/ng-hub-ui-icons)
+- [**ng-hub-ui-loading**](https://www.npmjs.com/package/ng-hub-ui-loading)
+- [**ng-hub-ui-metrics**](https://www.npmjs.com/package/ng-hub-ui-metrics)
 - [**ng-hub-ui-milestones**](https://www.npmjs.com/package/ng-hub-ui-milestones)
 - [**ng-hub-ui-modal**](https://www.npmjs.com/package/ng-hub-ui-modal)
 - [**ng-hub-ui-nav**](https://www.npmjs.com/package/ng-hub-ui-nav)
 - [**ng-hub-ui-paginable**](https://www.npmjs.com/package/ng-hub-ui-paginable)
 - [**ng-hub-ui-panels**](https://www.npmjs.com/package/ng-hub-ui-panels)
 - [**ng-hub-ui-portal**](https://www.npmjs.com/package/ng-hub-ui-portal)
+- [**ng-hub-ui-signature**](https://www.npmjs.com/package/ng-hub-ui-signature)
 - [**ng-hub-ui-skeleton**](https://www.npmjs.com/package/ng-hub-ui-skeleton)
 - [**ng-hub-ui-sortable**](https://www.npmjs.com/package/ng-hub-ui-sortable)
 - [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper)
+- [**ng-hub-ui-toast**](https://www.npmjs.com/package/ng-hub-ui-toast)
 - [**ng-hub-ui-utils**](https://www.npmjs.com/package/ng-hub-ui-utils)
 
 ## 📋 Tabla de contenidos
@@ -55,6 +60,10 @@ Esta biblioteca forma parte del ecosistema **ng-hub-ui**:
 Rastrea de forma independiente el estado de cualquier número de objetos, cada uno
 identificado por una clave configurable, y expone una signal `states` totalmente reactiva
 que siempre refleja la instantánea actual de todos los objetos rastreados.
+
+El store es exclusivo de Angular: se apoya en `signal`/`computed` de `@angular/core` y
+`watchForm` recibe un `FormGroup` de `@angular/forms`. Ambos se declaran como dependencias
+peer, así que no puede usarse en un proyecto que no sea Angular.
 
 En lugar de almacenar instantáneas completas por cada cambio, el store registra parches
 de diferencias (forward/backward) compactos, lo que mantiene bajo el uso de memoria a la
@@ -106,7 +115,8 @@ const store = createHistoryStore<Note, string>({
 // Registra un objeto para empezar a rastrear su historial.
 store.registerObject('a-1', { id: 'a-1', name: 'Initial' });
 
-// Confirma un nuevo estado. Devuelve false cuando no hubo cambios.
+// Confirma un nuevo estado. Devuelve false cuando el estado no cambia, salvo con una
+// transacción abierta: ahí siempre devuelve true y todavía no registra nada.
 store.commit('a-1', { id: 'a-1', name: 'Edited' }, { label: 'Rename' });
 
 // Navega por el timeline.
@@ -166,7 +176,7 @@ tipo de clave (por defecto `string | number`).
 | `states`                                | `Signal<Map<K, T>>`   | Diccionario reactivo de estados actuales indexados por id de objeto.              |
 | `registerObject(id, initialState)`      | `void`                | Registra un objeto rastreado e inicia un timeline nuevo.                          |
 | `registerFromObject(initialState)`      | `K`                   | Registra usando el `keySelector` configurado; devuelve el id resuelto.            |
-| `commit(id, newState, options?)`        | `boolean`             | Confirma una nueva instantánea. Devuelve `false` cuando no hubo cambios.          |
+| `commit(id, newState, options?)`        | `boolean`             | Confirma una nueva instantánea. Devuelve `false` cuando no hubo cambios; dentro de una transacción abierta solo actualiza el estado actual y devuelve `true`. |
 | `commitFromObject(newState, options?)`  | `boolean`             | Confirma usando el `keySelector` configurado.                                     |
 | `undo(id)`                              | `boolean`             | Revierte un paso. Devuelve `false` en la base del timeline.                       |
 | `redo(id)`                              | `boolean`             | Reaplica un paso. Devuelve `false` cuando no existe entrada de redo.              |

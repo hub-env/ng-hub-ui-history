@@ -1,6 +1,6 @@
 {
 	"name": "ng-hub-ui-history",
-	"version": "22.0.3",
+	"version": "22.0.4",
 	"description": "Signal-based multi-object undo/redo history store for Angular applications",
 	"keywords": [
 		"ng-hub-ui",
@@ -28,7 +28,6 @@
 		"tslib": "^2.3.0"
 	},
 	"sideEffects": false,
-	"main": "src/public-api.ts",
 	"homepage": "https://hubui.dev/en/history/overview/",
 	"author": "Carlos Morcillo <carlos.morcillo@me.com> (https://www.carlosmorcillo.com)"
 }

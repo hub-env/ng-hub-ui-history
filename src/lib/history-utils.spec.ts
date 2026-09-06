@@ -260,3 +260,84 @@ describe('diff/patch round-trips', () => {
 		expect(applyDefaultPatch(undone, forward)).toEqual(stateB);
 	});
 });
+
+describe('createDefaultDiff with non-plain objects', () => {
+	it('replaces the whole value when a Date changes', () => {
+		const operations = createDefaultDiff(
+			{ dueAt: new Date('2026-01-01T00:00:00.000Z') },
+			{ dueAt: new Date('2026-12-31T00:00:00.000Z') }
+		);
+
+		expect(operations).toEqual([{ op: 'set', path: ['dueAt'], value: new Date('2026-12-31T00:00:00.000Z') }]);
+		expect((operations[0] as { value: Date }).value).toBeInstanceOf(Date);
+	});
+
+	it('keeps sibling changes scoped when a Date changes alongside a primitive', () => {
+		const operations = createDefaultDiff(
+			{ dueAt: new Date('2026-01-01T00:00:00.000Z'), revision: 1 },
+			{ dueAt: new Date('2026-12-31T00:00:00.000Z'), revision: 2 }
+		);
+
+		expect(operations).toContainEqual({ op: 'set', path: ['dueAt'], value: new Date('2026-12-31T00:00:00.000Z') });
+		expect(operations).toContainEqual({ op: 'set', path: ['revision'], value: 2 });
+		expect(operations).toHaveLength(2);
+	});
+
+	it('replaces the whole value when a Set, a Map or a RegExp changes', () => {
+		expect(createDefaultDiff({ tags: new Set(['a']) }, { tags: new Set(['a', 'b']) })).toEqual([
+			{ op: 'set', path: ['tags'], value: new Set(['a', 'b']) }
+		]);
+		expect(createDefaultDiff({ byId: new Map([['a', 1]]) }, { byId: new Map([['a', 2]]) })).toEqual([
+			{ op: 'set', path: ['byId'], value: new Map([['a', 2]]) }
+		]);
+		expect(createDefaultDiff({ pattern: /a/g }, { pattern: /b/g })).toEqual([
+			{ op: 'set', path: ['pattern'], value: /b/g }
+		]);
+	});
+
+	it('reports no change when two distinct instances hold the same value', () => {
+		expect(
+			createDefaultDiff({ dueAt: new Date('2026-01-01T00:00:00.000Z') }, { dueAt: new Date('2026-01-01T00:00:00.000Z') })
+		).toEqual([]);
+		expect(createDefaultDiff({ tags: new Set(['a', 'b']) }, { tags: new Set(['b', 'a']) })).toEqual([]);
+		expect(
+			createDefaultDiff(
+				{
+					byId: new Map([
+						['a', 1],
+						['b', 2]
+					])
+				},
+				{
+					byId: new Map([
+						['b', 2],
+						['a', 1]
+					])
+				}
+			)
+		).toEqual([]);
+		expect(createDefaultDiff({ pattern: /a/g }, { pattern: /a/g })).toEqual([]);
+	});
+
+	it('replaces the whole value when a non-plain object takes the place of a plain one', () => {
+		expect(createDefaultDiff({ at: { iso: 'x' } }, { at: new Date('2026-01-01T00:00:00.000Z') })).toEqual([
+			{ op: 'set', path: ['at'], value: new Date('2026-01-01T00:00:00.000Z') }
+		]);
+		expect(createDefaultDiff({ at: new Date('2026-01-01T00:00:00.000Z') }, { at: { iso: 'x' } })).toEqual([
+			{ op: 'set', path: ['at'], value: { iso: 'x' } }
+		]);
+	});
+
+	it('round-trips Dates, Sets and Maps through diff and patch', () => {
+		expectRoundTrip(
+			{ dueAt: new Date('2026-01-01T00:00:00.000Z'), revision: 1 },
+			{ dueAt: new Date('2026-12-31T00:00:00.000Z'), revision: 2 }
+		);
+		expectRoundTrip({ tags: new Set(['a']) }, { tags: new Set(['a', 'b']) });
+		expectRoundTrip({ byId: new Map([['a', 1]]) }, { byId: new Map([['a', 2]]) });
+		expectRoundTrip(
+			{ milestones: [new Date('2026-01-01T00:00:00.000Z')] },
+			{ milestones: [new Date('2026-02-01T00:00:00.000Z')] }
+		);
+	});
+});

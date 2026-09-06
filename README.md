@@ -16,25 +16,30 @@ This package is part of [Hub UI](https://hubui.dev/en/), a collection of Angular
 
 This library is part of the **ng-hub-ui** ecosystem:
 
-- [**ng-hub-ui-accordion**](https://www.npmjs.com/package/ng-hub-ui-accordion) (deprecated — use ng-hub-ui-panels)
 - [**ng-hub-ui-action-sheet**](https://www.npmjs.com/package/ng-hub-ui-action-sheet)
 - [**ng-hub-ui-avatar**](https://www.npmjs.com/package/ng-hub-ui-avatar)
+- [**ng-hub-ui-badges**](https://www.npmjs.com/package/ng-hub-ui-badges)
 - [**ng-hub-ui-board**](https://www.npmjs.com/package/ng-hub-ui-board)
 - [**ng-hub-ui-breadcrumbs**](https://www.npmjs.com/package/ng-hub-ui-breadcrumbs)
+- [**ng-hub-ui-buttons**](https://www.npmjs.com/package/ng-hub-ui-buttons)
 - [**ng-hub-ui-calendar**](https://www.npmjs.com/package/ng-hub-ui-calendar)
-- [**ng-hub-ui-dropdown**](https://www.npmjs.com/package/ng-hub-ui-dropdown)
 - [**ng-hub-ui-ds**](https://www.npmjs.com/package/ng-hub-ui-ds)
 - [**ng-hub-ui-forms**](https://www.npmjs.com/package/ng-hub-ui-forms)
 - [**ng-hub-ui-history**](https://www.npmjs.com/package/ng-hub-ui-history) ← You are here
+- [**ng-hub-ui-icons**](https://www.npmjs.com/package/ng-hub-ui-icons)
+- [**ng-hub-ui-loading**](https://www.npmjs.com/package/ng-hub-ui-loading)
+- [**ng-hub-ui-metrics**](https://www.npmjs.com/package/ng-hub-ui-metrics)
 - [**ng-hub-ui-milestones**](https://www.npmjs.com/package/ng-hub-ui-milestones)
 - [**ng-hub-ui-modal**](https://www.npmjs.com/package/ng-hub-ui-modal)
 - [**ng-hub-ui-nav**](https://www.npmjs.com/package/ng-hub-ui-nav)
 - [**ng-hub-ui-paginable**](https://www.npmjs.com/package/ng-hub-ui-paginable)
 - [**ng-hub-ui-panels**](https://www.npmjs.com/package/ng-hub-ui-panels)
 - [**ng-hub-ui-portal**](https://www.npmjs.com/package/ng-hub-ui-portal)
+- [**ng-hub-ui-signature**](https://www.npmjs.com/package/ng-hub-ui-signature)
 - [**ng-hub-ui-skeleton**](https://www.npmjs.com/package/ng-hub-ui-skeleton)
 - [**ng-hub-ui-sortable**](https://www.npmjs.com/package/ng-hub-ui-sortable)
 - [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper)
+- [**ng-hub-ui-toast**](https://www.npmjs.com/package/ng-hub-ui-toast)
 - [**ng-hub-ui-utils**](https://www.npmjs.com/package/ng-hub-ui-utils)
 
 ## 📋 Table of Contents
@@ -51,10 +56,14 @@ This library is part of the **ng-hub-ui** ecosystem:
 
 ## Description
 
-`ng-hub-ui-history` is a framework-agnostic, signal-based history store for Angular
-applications. It tracks the state of any number of objects independently, each keyed by a
-configurable identifier, and exposes a fully reactive `states` signal that always reflects
-the current snapshot of every tracked object.
+`ng-hub-ui-history` is a signal-based history store for Angular applications. It tracks the
+state of any number of objects independently, each keyed by a configurable identifier, and
+exposes a fully reactive `states` signal that always reflects the current snapshot of every
+tracked object.
+
+The store is Angular-only: it is built on `signal`/`computed` from `@angular/core`, and
+`watchForm` takes a `FormGroup` from `@angular/forms`. Both are declared as peer
+dependencies, so it cannot be dropped into a non-Angular project.
 
 Instead of storing full snapshots per change, the store records compact forward/backward
 diff patches, which keeps memory usage low while supporting linear undo/redo navigation.
@@ -104,7 +113,8 @@ const store = createHistoryStore<Note, string>({
 // Register an object to start tracking its history.
 store.registerObject('a-1', { id: 'a-1', name: 'Initial' });
 
-// Commit a new state. Returns false when nothing changed.
+// Commit a new state. Returns false when the state is unchanged — unless a
+// transaction is open, where it always returns true and records nothing yet.
 store.commit('a-1', { id: 'a-1', name: 'Edited' }, { label: 'Rename' });
 
 // Navigate the timeline.
@@ -164,7 +174,7 @@ Creates a history store instance. `T` is the tracked object type and `K` is the 
 | `states`                                | `Signal<Map<K, T>>`   | Reactive dictionary of current states keyed by object id.                   |
 | `registerObject(id, initialState)`      | `void`                | Registers a tracked object and starts a fresh timeline.                     |
 | `registerFromObject(initialState)`      | `K`                   | Registers using the configured `keySelector`; returns the resolved id.      |
-| `commit(id, newState, options?)`        | `boolean`             | Commits a new snapshot. Returns `false` when nothing changed.               |
+| `commit(id, newState, options?)`        | `boolean`             | Commits a new snapshot. Returns `false` when nothing changed; inside an open transaction it only updates the current state and returns `true`. |
 | `commitFromObject(newState, options?)`  | `boolean`             | Commits using the configured `keySelector`.                                 |
 | `undo(id)`                              | `boolean`             | Reverts one step. Returns `false` at the timeline base.                     |
 | `redo(id)`                              | `boolean`             | Re-applies one step. Returns `false` when no redo entry exists.             |
